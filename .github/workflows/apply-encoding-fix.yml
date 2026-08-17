@@ -1,0 +1,61 @@
+name: Apply encoding fix
+
+on:
+  push:
+    branches:
+      - patch/fix-encoding-corruption
+    paths:
+      - .github/workflows/apply-encoding-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: patch/fix-encoding-corruption
+          fetch-depth: 1
+
+      - name: Fix corrupted literals
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/public-app.js')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              """const query = preset.query ? '\\u00e2\\u0080\\u009c' + preset.query + '\\u00e2\\u0080\\u009d' : 'No search';\n    return query + ' \\u00c2\\u00b7 ' + getFilterLabel(preset.filter);""":
+              """const quoteOpen = String.fromCharCode(0x201c);\n    const quoteClose = String.fromCharCode(0x201d);\n    const separator = String.fromCharCode(0x00b7);\n    const query = preset.query ? quoteOpen + preset.query + quoteClose : 'No search';\n    return query + ' ' + separator + ' ' + getFilterLabel(preset.filter);""",
+              "remove.textContent = '\\u00c3\\u0097';":
+              "remove.textContent = '\\u00d7';",
+              ">\\u00c3\\u0083\\u00c2\\u0097</button>":
+              ">\\u00d7</button>",
+              "showToast('\\u00c3\\u009a\\u00c2\\u00a9\\u00c3\\u0099\\u00c2\\u00be\\u00c3\\u009b\\u00c2\\u008c \\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af!');":
+              "showToast('\\u06a9\\u067e\\u06cc \\u0634\\u062f!');",
+              "showToast('\\u00c3\\u009a\\u00c2\\u00a9\\u00c3\\u0099\\u00c2\\u00be\\u00c3\\u009b\\u00c2\\u008c \\u00c3\\u0099\\u00c2\\u0086\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af :(');":
+              "showToast('\\u06a9\\u067e\\u06cc \\u0646\\u0634\\u062f :(');",
+              "showToast('\\u00c3\\u0099\\u00c2\\u0086\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af \\u00c3\\u0099\\u00c2\\u0084\\u00c3\\u0099\\u00c2\\u0088\\u00c3\\u0098\\u00c2\\u00af \\u00c3\\u0098\\u00c2\\u00a8\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0099\\u00c2\\u0087');":
+              "showToast('\\u0646\\u0634\\u062f \\u0644\\u0648\\u062f \\u0628\\u0634\\u0647');",
+          }
+
+          for old, new in replacements.items():
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one occurrence, found {count}: {old!r}')
+              text = text.replace(old, new)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/public-app.js
+          git commit -m "fix: repair corrupted UTF-8 literals"
+          git push origin HEAD:patch/fix-encoding-corruption
