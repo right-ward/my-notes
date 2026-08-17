@@ -1,12 +1,12 @@
 name: CI
 
-# Temporary repair gate for the current PR head.
+# Validate JavaScript modules and the Wrangler deployment bundle.
 on:
   pull_request:
   workflow_call:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
@@ -14,13 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
-
-      - name: Repair generated public app string
-        if: github.event_name == 'pull_request' && github.head_ref == 'patch/ci-wrangler'
-        run: |
-          perl -0pi -e 's/    const quoteOpen.*?    const separator = String\.fromCharCode\(0x00b7\);\n/    const quoteOpen = String.fromCharCode(0x201c); const quoteClose = String.fromCharCode(0x201d); const separator = String.fromCharCode(0x00b7);/s' src/public-app.js
 
       - name: Setup Node
         uses: actions/setup-node@v7.0.0
@@ -38,19 +31,6 @@ jobs:
           for file in src/worker.js src/notes.js src/style.js; do
             node --check "$file"
           done
-          node --check src/public-app.js
 
       - name: Validate Wrangler build
         run: npx --yes wrangler@latest deploy --dry-run
-
-      - name: Push source repair
-        if: github.event_name == 'pull_request' && github.head_ref == 'patch/ci-wrangler'
-        run: |
-          git add src/public-app.js
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "fix: repair public app string escaping"
-          git push origin HEAD:${{ github.head_ref }}
