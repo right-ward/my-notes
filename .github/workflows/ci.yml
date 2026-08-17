@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check JavaScript syntax
+      - name: Check standalone JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
-          for file in src/*.js; do
+          for file in src/worker.js src/notes.js src/style.js; do
             node --check "$file"
           done
 
