@@ -34,7 +34,15 @@
 
 ## Next
 ### v2.3.0
+- Debloat src/ files to enable easier edits
+
+### v2.4.0
 - Safer link handling and small editor UX polish.
+
+### v2.5.0
+- Ability to select cards to export to offline HTML
+  - Use a separate option than the normal `Export HTML`
+  - Should open a modal with the list of existing cards' titles to select and export
 
 ### v3.0.0
 - Multiple note collections under different paths, with the routing and storage changes needed to support them properly.
