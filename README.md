@@ -1,4 +1,4 @@
-# dp-notes
+# My Notes
 
 Cloudflare Worker version of my notes app.
 
