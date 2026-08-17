@@ -29,18 +29,20 @@ jobs:
           text = path.read_text(encoding='utf-8')
 
           replacements = {
-              """const query = preset.query ? '\\u00e2\\u0080\\u009c' + preset.query + '\\u00e2\\u0080\\u009d' : 'No search';\n    return query + ' \\u00c2\\u00b7 ' + getFilterLabel(preset.filter);""":
-              """const quoteOpen = String.fromCharCode(0x201c);\n    const quoteClose = String.fromCharCode(0x201d);\n    const separator = String.fromCharCode(0x00b7);\n    const query = preset.query ? quoteOpen + preset.query + quoteClose : 'No search';\n    return query + ' ' + separator + ' ' + getFilterLabel(preset.filter);""",
-              "remove.textContent = '\\u00c3\\u0097';":
-              "remove.textContent = '\\u00d7';",
-              ">\\u00c3\\u0083\\u00c2\\u0097</button>":
-              ">\\u00d7</button>",
-              "showToast('\\u00c3\\u009a\\u00c2\\u00a9\\u00c3\\u0099\\u00c2\\u00be\\u00c3\\u009b\\u00c2\\u008c \\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af!');":
-              "showToast('\\u06a9\\u067e\\u06cc \\u0634\\u062f!');",
-              "showToast('\\u00c3\\u009a\\u00c2\\u00a9\\u00c3\\u0099\\u00c2\\u00be\\u00c3\\u009b\\u00c2\\u008c \\u00c3\\u0099\\u00c2\\u0086\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af :(');":
-              "showToast('\\u06a9\\u067e\\u06cc \\u0646\\u0634\\u062f :(');",
-              "showToast('\\u00c3\\u0099\\u00c2\\u0086\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0098\\u00c2\\u00af \\u00c3\\u0099\\u00c2\\u0084\\u00c3\\u0099\\u00c2\\u0088\\u00c3\\u0098\\u00c2\\u00af \\u00c3\\u0098\\u00c2\\u00a8\\u00c3\\u0098\\u00c2\\u00b4\\u00c3\\u0099\\u00c2\\u0087');":
-              "showToast('\\u0646\\u0634\\u062f \\u0644\\u0648\\u062f \\u0628\\u0634\\u0647');",
+              r"const query = preset.query ? '\u00e2\u0080\u009c' + preset.query + '\u00e2\u0080\u009d' : 'No search';":
+                  "const quoteOpen = String.fromCharCode(0x201c);\n    const quoteClose = String.fromCharCode(0x201d);\n    const separator = String.fromCharCode(0x00b7);\n    const query = preset.query ? quoteOpen + preset.query + quoteClose : 'No search';",
+              r"    return query + ' \u00c2\u00b7 ' + getFilterLabel(preset.filter);":
+                  "    return query + ' ' + separator + ' ' + getFilterLabel(preset.filter);",
+              r"remove.textContent = '\u00c3\u0097';":
+                  r"remove.textContent = '\u00d7';",
+              r">\u00c3\u0083\u00c2\u0097</button>":
+                  r">\u00d7</button>",
+              r"showToast('\u00c3\u009a\u00c2\u00a9\u00c3\u0099\u00c2\u00be\u00c3\u009b\u00c2\u008c \u00c3\u0098\u00c2\u00b4\u00c3\u0098\u00c2\u00af!');":
+                  r"showToast('\u06a9\u067e\u06cc \u0634\u062f!');",
+              r"showToast('\u00c3\u009a\u00c2\u00a9\u00c3\u0099\u00c2\u00be\u00c3\u009b\u00c2\u008c \u00c3\u0099\u00c2\u0086\u00c3\u0098\u00c2\u00b4\u00c3\u0098\u00c2\u00af :(');":
+                  r"showToast('\u06a9\u067e\u06cc \u0646\u0634\u062f :(');",
+              r"showToast('\u00c3\u0099\u00c2\u0086\u00c3\u0098\u00c2\u00b4\u00c3\u0098\u00c2\u00af \u00c3\u0099\u00c2\u0084\u00c3\u0099\u00c2\u0088\u00c3\u0098\u00c2\u00af \u00c3\u0098\u00c2\u00a8\u00c3\u0098\u00c2\u00b4\u00c3\u0099\u00c2\u0087');":
+                  r"showToast('\u0646\u0634\u062f \u0644\u0648\u062f \u0628\u0634\u0647');",
           }
 
           for old, new in replacements.items():
