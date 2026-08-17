@@ -31,11 +31,9 @@
 - [x] Public renderer usage summary helper restored.
 - [x] Public page stats separator cleaned up; hidden-state label and top version badges added.
 - [x] Public page count line restored with safe separators, card usage stats moved to the card footer, and public usage recording restored.
+- [x] v2.3.0 source debloat: worker entrypoint split from core routing, note model/history helpers, storage helpers, and HTML shells.
 
 ## Next
-### v2.3.0
-- Debloat src/ files to enable easier edits
-
 ### v2.4.0
 - Safer link handling and small editor UX polish.
 
