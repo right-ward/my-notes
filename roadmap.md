@@ -37,7 +37,10 @@
 
 ## Next
 ### v2.4.0
-- Safer link handling and small editor UX polish.
+- Safer link handling and small UX polishes
+- The copy modal doesn't need to open if there are no placeholders
+- Currently, There are 2 lines for when there's no placeholder found in copy modal; a "No placeholders here. Copy directly if needed." and a "No placeholders detected in this block".
+- The copy toast message seems to be corrupted, so it needs to be checked too.
 
 ### v2.5.0
 - Ability to select cards to export to offline HTML
