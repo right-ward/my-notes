@@ -1,5 +1,6 @@
 name: CI
 
+# Temporary repair gate for the current PR head.
 on:
   pull_request:
   workflow_call:
