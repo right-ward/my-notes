@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to CF?'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   gate:
@@ -18,9 +24,13 @@ jobs:
           msg=$(echo "${{ github.event.head_commit.message }}" | tail -n 1)
           if [[ "${{ github.event_name }}" == "push" && "$msg" =~ ^Deploy ]]; then
             echo "passed=true" >> "$GITHUB_OUTPUT"
+          elif $DEPLOY; then
+            echo "passed=true" >> "$GITHUB_OUTPUT"
           else
             echo "passed=false" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          DEPLOY: ${{ inputs.deploy }}
 
   deploy:
     needs: gate
