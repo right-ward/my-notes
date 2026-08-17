@@ -18,8 +18,22 @@ jobs:
           ref: patch/ci-wrangler
 
       - name: Repair source
-        run: >-
-          python -c "from pathlib import Path; p=Path('src/public-app.js'); t=p.read_text(encoding='utf-8'); o='    const quoteOpen = String.fromCharCode(0x201c);\n    const quoteClose = String.fromCharCode(0x201d);\n    const separator = String.fromCharCode(0x00b7);\n'; n='    const quoteOpen = String.fromCharCode(0x201c);\\n    const quoteClose = String.fromCharCode(0x201d);\\n    const separator = String.fromCharCode(0x00b7);\\n'; assert t.count(o)==1, f'expected one malformed block, found {t.count(o)}'; p.write_text(t.replace(o,n),encoding='utf-8')"
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/public-app.js')
+          text = path.read_text(encoding='utf-8')
+          old = """    const quoteOpen = String.fromCharCode(0x201c);
+    const quoteClose = String.fromCharCode(0x201d);
+    const separator = String.fromCharCode(0x00b7);
+"""
+          new = "    const quoteOpen = String.fromCharCode(0x201c); const quoteClose = String.fromCharCode(0x201d); const separator = String.fromCharCode(0x00b7);"
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one malformed block, found {count}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
 
       - name: Verify source
         run: node --check src/public-app.js
