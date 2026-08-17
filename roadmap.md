@@ -32,8 +32,12 @@
 - [x] Public page stats separator cleaned up; hidden-state label and top version badges added.
 - [x] Public page count line restored with safe separators, card usage stats moved to the card footer, and public usage recording restored.
 - [x] v2.3.0 source debloat: worker entrypoint split from core routing, note model/history helpers, storage helpers, and HTML shells.
+- [x] v2.3.1 public app extraction: stable `public-app.js` entrypoint separated from the public runtime implementation.
 
 ## Next
+### v2.3.2
+- Split `public-app-runtime.js` into focused client-side modules without changing the generated-script contract or offline export behavior.
+
 ### v2.4.0
 - Safer link handling and small editor UX polish.
 
