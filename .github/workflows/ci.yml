@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   test:
@@ -44,49 +43,14 @@ jobs:
       - name: Validate Wrangler build
         run: npx --yes wrangler@latest deploy --dry-run
 
-      - name: Push repair and restore clean CI
+      - name: Push source repair
         if: github.event_name == 'pull_request' && github.head_ref == 'patch/ci-wrangler'
         run: |
-          cat > .github/workflows/ci.yml <<'EOF'
-          name: CI
-
-          on:
-            pull_request:
-            workflow_call:
-
-          permissions:
-            contents: read
-
-          jobs:
-            test:
-              runs-on: ubuntu-latest
-              steps:
-                - name: Checkout
-                  uses: actions/checkout@v7.0.1
-
-                - name: Setup Node
-                  uses: actions/setup-node@v7.0.0
-                  with:
-                    node-version: 24
-                    cache: npm
-
-                - name: Install dependencies
-                  run: npm ci
-
-                - name: Check standalone JavaScript syntax
-                  shell: bash
-                  run: |
-                    set -euo pipefail
-                    for file in src/worker.js src/notes.js src/style.js; do
-                      node --check "$file"
-                    done
-
-                - name: Validate Wrangler build
-                  run: npx --yes wrangler@latest deploy --dry-run
-          EOF
-          rm -f .github/workflows/fix-public-app-string.yml .github/workflows/fix-public-app-encoding.yml .github/workflows/fix-public-app-final.yml
+          git add src/public-app.js
+          if git diff --cached --quiet; then
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/public-app.js .github/workflows/ci.yml .github/workflows/fix-public-app-string.yml .github/workflows/fix-public-app-encoding.yml .github/workflows/fix-public-app-final.yml
           git commit -m "fix: repair public app string escaping"
           git push origin HEAD:${{ github.head_ref }}
