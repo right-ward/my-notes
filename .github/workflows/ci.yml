@@ -21,7 +21,6 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
           app = Path('src/public-app.js')
           text = app.read_text(encoding='utf-8')
           old = """    const quoteOpen = String.fromCharCode(0x201c);
@@ -33,7 +32,34 @@ jobs:
           if count != 1:
               raise SystemExit(f'Expected exactly one malformed block, found {count}')
           app.write_text(text.replace(old, new), encoding='utf-8')
+          PY
 
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check standalone JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in src/worker.js src/notes.js src/style.js; do
+            node --check "$file"
+          done
+          node --check src/public-app.js
+
+      - name: Validate Wrangler build
+        run: npx --yes wrangler@latest deploy --dry-run
+
+      - name: Push repair and restore workflow
+        if: github.event_name == 'pull_request' && github.head_ref == 'patch/ci-wrangler'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
           Path('.github/workflows/ci.yml').write_text('''name: CI
 
 on:
@@ -49,8 +75,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v7.0.0
@@ -74,33 +98,8 @@ jobs:
 ''', encoding='utf-8')
           Path('.github/workflows/fix-public-app-string.yml').unlink(missing_ok=True)
           PY
-
-      - name: Setup Node
-        uses: actions/setup-node@v7.0.0
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check standalone JavaScript syntax
-        shell: bash
-        run: |
-          set -euo pipefail
-          for file in src/worker.js src/notes.js src/style.js; do
-            node --check "$file"
-          done
-
-      - name: Validate Wrangler build
-        run: npx --yes wrangler@latest deploy --dry-run
-
-      - name: Push repair and cleanup
-        if: github.event_name == 'pull_request' && github.head_ref == 'patch/ci-wrangler'
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/public-app.js .github/workflows/ci.yml .github/workflows/fix-public-app-string.yml
-          git diff --cached --quiet && exit 0
           git commit -m "fix: repair public app string escaping"
           git push origin HEAD:${{ github.head_ref }}
