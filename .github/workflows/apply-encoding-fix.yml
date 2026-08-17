@@ -47,9 +47,10 @@ jobs:
 
           for old, new in replacements.items():
               count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'Expected exactly one occurrence, found {count}: {old!r}')
+              if count < 1:
+                  raise SystemExit(f'Expected at least one occurrence, found {count}: {old!r}')
               text = text.replace(old, new)
+              print(f'Replaced {count} occurrence(s)')
 
           path.write_text(text, encoding='utf-8')
           PY
