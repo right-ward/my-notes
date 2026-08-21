@@ -36,12 +36,8 @@
 - [x] v2.3.2 public app runtime debloat: runtime split into focused context, Markdown, presets, navigation, modal, card rendering, and bootstrap modules.
 - [x] v2.4.0 safer Markdown link handling, direct copy for blocks without placeholders, redundant copy-modal empty-state text removal, and copy-toast encoding fix.
 - [x] v2.4.1 centralized application version rendering from `package.json` and CI validation to prevent public/manage version drift.
+- [x] v2.5.0 selected offline HTML export with a dedicated card-selection modal and server-side filtering.
 
 ## Next
-### v2.5.0
-- Ability to select cards to export to offline HTML
-  - Use a separate option than the normal `Export HTML`
-  - Should open a modal with the list of existing cards' titles to select and export
-
 ### v3.0.0
 - Multiple note collections under different paths, with the routing and storage changes needed to support them properly.
