@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in src/worker.js src/notes.js src/note-model.js src/note-store.js src/style.js src/shells.js src/manage-export.js src/ui-polish.js src/version.js; do
+          for file in src/worker.js src/notes.js src/note-model.js src/note-store.js src/style.js src/shells.js src/manage-export.js src/ui-polish.js src/manage-patch.js src/version.js; do
             node --check "$file"
           done
 
