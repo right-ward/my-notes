@@ -37,6 +37,7 @@
 - [x] v2.4.0 safer Markdown link handling, direct copy for blocks without placeholders, redundant copy-modal empty-state text removal, and copy-toast encoding fix.
 - [x] v2.4.1 centralized application version rendering from `package.json` and CI validation to prevent public/manage version drift.
 - [x] v2.5.0 selected offline HTML export with a dedicated card-selection modal and server-side filtering.
+- [x] v2.5.1 removed the unused Explain on hover editor option and restored collapsible note/ticket/important categories.
 
 ## Next
 ### v3.0.0
