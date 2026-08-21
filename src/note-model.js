@@ -2,7 +2,6 @@ export function normalizeBlock(block = {}) {
   return {
     text: String(block.text || ''),
     copyable: !!block.copyable,
-    explain: !!block.explain,
   };
 }
 
@@ -22,6 +21,7 @@ export function snapshotNote(note = {}) {
     title: String(note.title || 'Untitled'),
     index: Number(note.index || 1),
     done: !!note.done,
+    hidden: !!note.hidden,
     blocks: Array.isArray(note.blocks) ? note.blocks.map(normalizeBlock) : [],
     stats: normalizeUsageStats(note.stats),
   };
@@ -54,7 +54,7 @@ export function normalizeNote(note = {}, index = 1) {
     : (['note', 'ticket', 'important'].includes(rawKind) ? rawKind : 'note');
   const blocks = Array.isArray(note.blocks) && note.blocks.length
     ? note.blocks
-    : [{ text: '', copyable: false, explain: false }];
+    : [{ text: '', copyable: false }];
   const history = Array.isArray(note.history)
     ? note.history.map(normalizeHistoryEntry).slice(0, 2)
     : [];
@@ -65,6 +65,7 @@ export function normalizeNote(note = {}, index = 1) {
     title,
     index: Number(note.index || index),
     done: !!note.done,
+    hidden: !!note.hidden,
     blocks: blocks.map(normalizeBlock),
     history,
     stats: normalizeUsageStats(note.stats),
@@ -102,12 +103,12 @@ function noteComparableLines(note = {}) {
     `title: ${String(note.title || '')}`,
     `kind: ${String(note.kind || 'note')}`,
     `done: ${note.done ? 'true' : 'false'}`,
+    `hidden: ${note.hidden ? 'true' : 'false'}`,
     `blocks: ${blocks.length}`,
   ];
 
   blocks.forEach((block, index) => {
     lines.push(`block ${index + 1}.copyable: ${block.copyable ? 'true' : 'false'}`);
-    lines.push(`block ${index + 1}.explain: ${block.explain ? 'true' : 'false'}`);
     lines.push(`block ${index + 1}.text:`);
     const textLines = String(block.text || '').split(/\r?\n/);
     lines.push(...(textLines.length ? textLines.map((line) => `  ${line}`) : ['']));
@@ -161,6 +162,7 @@ export function summarizeHistoryChange(beforeNote = {}, afterNote = {}, action =
   if (beforeNote.title !== afterNote.title) bits.push('title');
   if (beforeNote.kind !== afterNote.kind) bits.push('type');
   if (!!beforeNote.done !== !!afterNote.done) bits.push('done');
+  if (!!beforeNote.hidden !== !!afterNote.hidden) bits.push('hidden');
 
   const blockDelta = afterBlocks.length - beforeBlocks.length;
   if (blockDelta > 0) bits.push(`+${blockDelta} block${blockDelta === 1 ? '' : 's'}`);
@@ -173,8 +175,7 @@ export function summarizeHistoryChange(beforeNote = {}, afterNote = {}, action =
     const next = afterBlocks[index] || {};
     if (
       String(prev.text || '') !== String(next.text || '') ||
-      !!prev.copyable !== !!next.copyable ||
-      !!prev.explain !== !!next.explain
+      !!prev.copyable !== !!next.copyable
     ) changedBlocks += 1;
   }
 
