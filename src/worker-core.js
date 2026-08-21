@@ -273,7 +273,8 @@ export default {
     }
 
     if (pathname === '/api/notes' && request.method === 'GET') {
-      return json({ notes: sortByIndex(await loadNotes(env)).filter((note) => !note.hidden) });
+      const notes = sortByIndex(await loadNotes(env));
+      return json({ notes: isAuthed(request) ? notes : notes.filter((note) => !note.hidden) });
     }
 
     if (pathname === '/manage/export.json' && request.method === 'GET') {
