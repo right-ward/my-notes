@@ -1,6 +1,7 @@
 import { style } from './style.js';
 import { publicAppJs } from './public-app.js';
 import { manageAppJs } from './manage-app.js';
+import { APP_VERSION } from './version.js';
 
 function escapeHtml(text) {
   return String(text)
@@ -36,7 +37,7 @@ export function publicShell(embedNotes = null) {
         <option value="active">Active only</option>
         <option value="done">Done only</option>
       </select>
-      <span class="meta pageVersion">v2.3.0</span>
+      <span class="meta pageVersion">v${APP_VERSION}</span>
       <span class="meta" id="cardCount">Loading...</span>
     </section>
     <section id="notes" class="container" aria-live="polite" dir="auto"></section>
@@ -89,7 +90,7 @@ export function manageShell() {
 </head>
 <body>
   <main>
-    <div class="pageVersion manageVersion">v2.3.0</div>
+    <div class="pageVersion manageVersion">v${APP_VERSION}</div>
     <div id="app" dir="ltr"></div>
   </main>
   <div id="toast" style="visibility:hidden; opacity:0;"></div>

@@ -28,9 +28,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in src/worker.js src/notes.js src/style.js; do
+          for file in src/worker.js src/notes.js src/style.js src/shells.js src/version.js; do
             node --check "$file"
           done
+
+      - name: Check application version source
+        run: |
+          test "$(node -p "require('./package.json').version")" = "$(node -e "import('./src/version.js').then(({ APP_VERSION }) => process.stdout.write(APP_VERSION))")"
 
       - name: Validate Wrangler build
         run: npx --yes wrangler@latest deploy --dry-run

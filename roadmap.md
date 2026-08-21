@@ -35,6 +35,7 @@
 - [x] v2.3.1 public app extraction: stable `public-app.js` entrypoint separated from the public runtime implementation.
 - [x] v2.3.2 public app runtime debloat: runtime split into focused context, Markdown, presets, navigation, modal, card rendering, and bootstrap modules.
 - [x] v2.4.0 safer Markdown link handling, direct copy for blocks without placeholders, redundant copy-modal empty-state text removal, and copy-toast encoding fix.
+- [x] v2.4.1 centralized application version rendering from `package.json` and CI validation to prevent public/manage version drift.
 
 ## Next
 ### v2.5.0
