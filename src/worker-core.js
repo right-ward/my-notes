@@ -99,7 +99,7 @@ async function replaceAllNotes(env, payload) {
 
 function exportHtmlAttachment(notes, filename = 'my-notes-offline.html') {
   return response(publicShell(notes), 200, {
-    'content-disposition': `attachment; filename="${filename}"`,
+    'content-disposition': `attachment; filename=\"${filename}\"`,
   });
 }
 
@@ -110,8 +110,8 @@ async function exportSelectedHtml(env, ids) {
       .filter(Boolean)
   );
   const notes = sortByIndex(await loadNotes(env));
-  const selected = notes.filter((note) => selectedIds.has(String(note.id)));
-  if (!selected.length) throw new Error('Select at least one existing card');
+  const selected = notes.filter((note) => selectedIds.has(String(note.id)) && !note.hidden);
+  if (!selected.length) throw new Error('Select at least one existing visible card');
   return exportHtmlAttachment(selected, 'my-notes-selected.html');
 }
 
@@ -138,6 +138,7 @@ async function createNote(env, body) {
     title,
     kind: body.kind,
     done: !!body.done,
+    hidden: !!body.hidden,
     blocks: Array.isArray(body.blocks) ? body.blocks : [],
     history: [],
     index: notes.length + 1,
@@ -157,6 +158,7 @@ async function updateNote(env, id, body) {
     title: body.title ?? current.title,
     kind: body.kind ?? current.kind,
     done: typeof body.done === 'boolean' ? body.done : current.done,
+    hidden: typeof body.hidden === 'boolean' ? body.hidden : current.hidden,
     blocks: Array.isArray(body.blocks) ? body.blocks : current.blocks,
     id: current.id,
     index: current.index,
@@ -271,19 +273,20 @@ export default {
     }
 
     if (pathname === '/api/notes' && request.method === 'GET') {
-      return json({ notes: sortByIndex(await loadNotes(env)) });
+      const notes = sortByIndex(await loadNotes(env));
+      return json({ notes: isAuthed(request) ? notes : notes.filter((note) => !note.hidden) });
     }
 
     if (pathname === '/manage/export.json' && request.method === 'GET') {
       if (!isAuthed(request)) return response(manageLoginShell(), 401);
       return json(backupPayload(sortByIndex(await loadNotes(env))), 200, {
-        'content-disposition': 'attachment; filename="my-notes-backup.json"',
+        'content-disposition': 'attachment; filename=\"my-notes-backup.json\"',
       });
     }
 
     if (pathname === '/manage/export.html' && request.method === 'GET') {
       if (!isAuthed(request)) return response(manageLoginShell(), 401);
-      return exportHtmlAttachment(sortByIndex(await loadNotes(env)));
+      return exportHtmlAttachment(sortByIndex(await loadNotes(env)).filter((note) => !note.hidden));
     }
 
     if (pathname === '/manage/export.html' && request.method === 'POST') {
