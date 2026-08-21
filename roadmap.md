@@ -34,14 +34,9 @@
 - [x] v2.3.0 source debloat: worker entrypoint split from core routing, note model/history helpers, storage helpers, and HTML shells.
 - [x] v2.3.1 public app extraction: stable `public-app.js` entrypoint separated from the public runtime implementation.
 - [x] v2.3.2 public app runtime debloat: runtime split into focused context, Markdown, presets, navigation, modal, card rendering, and bootstrap modules.
+- [x] v2.4.0 safer Markdown link handling, direct copy for blocks without placeholders, redundant copy-modal empty-state text removal, and copy-toast encoding fix.
 
 ## Next
-### v2.4.0
-- Safer link handling and small UX polishes
-- The copy modal doesn't need to open if there are no placeholders
-- Currently, There are 2 lines for when there's no placeholder found in copy modal; a "No placeholders here. Copy directly if needed." and a "No placeholders detected in this block".
-- The copy toast message seems to be corrupted, so it needs to be checked too.
-
 ### v2.5.0
 - Ability to select cards to export to offline HTML
   - Use a separate option than the normal `Export HTML`
