@@ -1,7 +1,7 @@
 export const uiPolishJs = `
 
 (() => {
-  const CATEGORY_ORDER = ['note', 'ticket', 'important'];
+  const CATEGORY_ORDER = ['important', 'note', 'ticket'];
   const CATEGORY_LABELS = { note: 'Notes', ticket: 'Tickets', important: 'Important' };
   const fallbackStorage = new Map();
   const getStorage = () => { try { return window.localStorage; } catch { return null; } };
