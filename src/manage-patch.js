@@ -10,6 +10,17 @@ export const managePatchJs = `
     });
   }
 
+  function ensureLegacyBlockFlag(flags) {
+    const inputs = flags.querySelectorAll('input[type="checkbox"]');
+    if (inputs.length >= 2) return;
+    const legacy = document.createElement('input');
+    legacy.type = 'checkbox';
+    legacy.hidden = true;
+    legacy.checked = false;
+    legacy.dataset.legacyExplain = 'true';
+    flags.appendChild(legacy);
+  }
+
   function patchBlockFlags(root = document) {
     root.querySelectorAll('.blockFlags').forEach((flags) => {
       flags.querySelectorAll('label').forEach((label) => {
@@ -18,8 +29,10 @@ export const managePatchJs = `
         legacy.type = 'checkbox';
         legacy.hidden = true;
         legacy.checked = false;
+        legacy.dataset.legacyExplain = 'true';
         label.replaceWith(legacy);
       });
+      ensureLegacyBlockFlag(flags);
     });
   }
 
