@@ -1,6 +1,7 @@
 import { style } from './style.js';
 import { publicAppJs } from './public-app.js';
 import { manageAppJs } from './manage-app.js';
+import { manageExportAppJs } from './manage-export.js';
 import { APP_VERSION } from './version.js';
 
 function escapeHtml(text) {
@@ -95,6 +96,7 @@ export function manageShell() {
   </main>
   <div id="toast" style="visibility:hidden; opacity:0;"></div>
   <script type="module">${manageAppJs}</script>
+  <script type="module">${manageExportAppJs}</script>
 </body>
 </html>`;
 }

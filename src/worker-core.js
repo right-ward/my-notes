@@ -97,10 +97,22 @@ async function replaceAllNotes(env, payload) {
   return await saveNotes(env, notes);
 }
 
-function exportHtmlAttachment(notes) {
+function exportHtmlAttachment(notes, filename = 'my-notes-offline.html') {
   return response(publicShell(notes), 200, {
-    'content-disposition': 'attachment; filename="my-notes-offline.html"',
+    'content-disposition': `attachment; filename="${filename}"`,
   });
+}
+
+async function exportSelectedHtml(env, ids) {
+  const selectedIds = new Set(
+    (Array.isArray(ids) ? ids : [])
+      .map((id) => String(id || '').trim())
+      .filter(Boolean)
+  );
+  const notes = sortByIndex(await loadNotes(env));
+  const selected = notes.filter((note) => selectedIds.has(String(note.id)));
+  if (!selected.length) throw new Error('Select at least one existing card');
+  return exportHtmlAttachment(selected, 'my-notes-selected.html');
 }
 
 function notFound() {
@@ -272,6 +284,16 @@ export default {
     if (pathname === '/manage/export.html' && request.method === 'GET') {
       if (!isAuthed(request)) return response(manageLoginShell(), 401);
       return exportHtmlAttachment(sortByIndex(await loadNotes(env)));
+    }
+
+    if (pathname === '/manage/export.html' && request.method === 'POST') {
+      if (!isAuthed(request)) return response(manageLoginShell(), 401);
+      try {
+        const body = await parseBody(request);
+        return await exportSelectedHtml(env, body.ids);
+      } catch (error) {
+        return response(error.message || 'Failed to export selected HTML', 400);
+      }
     }
 
     if (pathname === '/manage/import' && request.method === 'POST') {
