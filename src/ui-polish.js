@@ -9,17 +9,7 @@ export const uiPolishJs = `
   const storageSet = (key, value) => { const s = getStorage(); if (s) { try { s.setItem(key, value); return; } catch {} } fallbackStorage.set(key, String(value)); };
 
   const style = document.createElement('style');
-  style.textContent = `
-    .categoryGroup { grid-column: 1 / -1; display: grid; gap: 0.7rem; }
-    .categoryHeader { display: flex; align-items: center; gap: 0.65rem; width: 100%; padding: 0.6rem 0.8rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(255,255,255,0.03); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
-    .categoryHeader:hover { border-color: rgba(255,255,255,0.16); background: rgba(255,255,255,0.05); }
-    .categoryTitle { font-weight: 700; }
-    .categoryCount { color: var(--muted); font-size: 0.86rem; }
-    .categoryIndicator { width: 0.65rem; height: 0.65rem; margin-inline-start: auto; border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease; }
-    .categoryGroup.isCollapsed .categoryIndicator { transform: rotate(-45deg) translateY(2px); }
-    .categoryCards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; align-items: start; }
-    .categoryCards[hidden] { display: none; }
-  `;
+  style.textContent = '.categoryGroup{grid-column:1 / -1;display:grid;gap:.7rem}.categoryHeader{display:flex;align-items:center;gap:.65rem;width:100%;padding:.6rem .8rem;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);color:var(--text);font:inherit;text-align:left;cursor:pointer}.categoryHeader:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.05)}.categoryTitle{font-weight:700}.categoryCount{color:var(--muted);font-size:.86rem}.categoryIndicator{width:.65rem;height:.65rem;margin-inline-start:auto;border-inline-end:2px solid currentColor;border-block-end:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s ease}.categoryGroup.isCollapsed .categoryIndicator{transform:rotate(-45deg) translateY(2px)}.categoryCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}.categoryCards[hidden]{display:none}';
   document.head.appendChild(style);
 
   function installExplainCleanup() {
