@@ -42,7 +42,10 @@ export async function loadNotes(env) {
     const list = Array.isArray(parsed.notes)
       ? parsed.notes
       : Array.isArray(parsed) ? parsed : [];
-    return normalizeNotes(list);
+    const normalized = normalizeNotes(list);
+    const canonical = JSON.stringify({ version: 1, notes: normalized });
+    if (canonical !== raw) await env.NOTES.put(STORAGE_KEY, canonical);
+    return normalized;
   } catch {
     return [];
   }
