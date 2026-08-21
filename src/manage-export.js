@@ -63,7 +63,8 @@ export const manageExportAppJs = `
       : [];
   }
 
-  function closeModal(modal) {
+  function closeModal(modal, onKeydown) {
+    if (onKeydown) document.removeEventListener('keydown', onKeydown);
     if (!modal) return;
     modal.remove();
     document.documentElement.classList.remove('modalOpen');
@@ -71,7 +72,7 @@ export const manageExportAppJs = `
 
   function openModal(notes) {
     const existing = document.getElementById(MODAL_ID);
-    if (existing) closeModal(existing);
+    if (existing) existing.remove();
 
     const modal = el('div', {
       id: MODAL_ID,
@@ -116,8 +117,24 @@ export const manageExportAppJs = `
 
     notes.forEach((note) => {
       const label = el('label', { className: 'copyModalField' });
+      label.style.display = 'flex';
+      label.style.alignItems = 'center';
+      label.style.justifyContent = 'space-between';
+      label.style.gap = '0.75rem';
+      label.style.padding = '0.55rem 0.7rem';
+      label.style.border = '1px solid rgba(255,255,255,0.06)';
+      label.style.borderRadius = '10px';
+      label.style.background = 'rgba(255,255,255,0.02)';
+
       const checkbox = el('input', { type: 'checkbox', checked: true, value: note.id || '' });
+      checkbox.style.width = '1.15rem';
+      checkbox.style.minWidth = '1.15rem';
+      checkbox.style.height = '1.15rem';
+      checkbox.style.minHeight = '1.15rem';
+      checkbox.style.padding = '0';
+      checkbox.style.flex = '0 0 auto';
       const titleText = el('span', { textContent: note.title || 'Untitled' });
+      titleText.style.overflowWrap = 'anywhere';
       label.append(titleText, checkbox);
       form.appendChild(label);
       checkboxes.push(checkbox);
@@ -157,17 +174,19 @@ export const manageExportAppJs = `
       updateSelection();
     });
 
-    const dismiss = () => closeModal(modal);
+    let closed = false;
+    const onKeydown = (event) => {
+      if (event.key === 'Escape') dismiss();
+    };
+    const dismiss = () => {
+      if (closed) return;
+      closed = true;
+      closeModal(modal, onKeydown);
+    };
+
     close.addEventListener('click', dismiss);
     cancel.addEventListener('click', dismiss);
     backdrop.addEventListener('click', dismiss);
-
-    const onKeydown = (event) => {
-      if (event.key === 'Escape') {
-        dismiss();
-        document.removeEventListener('keydown', onKeydown);
-      }
-    };
     document.addEventListener('keydown', onKeydown);
 
     exportButton.addEventListener('click', async () => {
