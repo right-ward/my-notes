@@ -4,6 +4,7 @@ export const uiPolishJs = `
   const CATEGORY_ORDER = ['important', 'note', 'ticket'];
   const CATEGORY_LABELS = { note: 'Notes', ticket: 'Tickets', important: 'Important' };
   const fallbackStorage = new Map();
+  const manageNotes = new Map();
   const getStorage = () => { try { return window.localStorage; } catch { return null; } };
   const storageGet = (key) => { const s = getStorage(); if (s) { try { return s.getItem(key); } catch {} } return fallbackStorage.get(key) ?? null; };
   const storageSet = (key, value) => { const s = getStorage(); if (s) { try { s.setItem(key, value); return; } catch {} } fallbackStorage.set(key, String(value)); };
@@ -46,7 +47,7 @@ export const uiPolishJs = `
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'publicHideToggle';
-        checkbox.checked = card.dataset.publicHidden === 'true';
+        checkbox.checked = !!manageNotes.get(card.dataset.id)?.hidden;
         checkbox.addEventListener('change', () => {
           card.dataset.publicHidden = checkbox.checked ? 'true' : 'false';
         });
@@ -76,11 +77,10 @@ export const uiPolishJs = `
     window.fetch = async (input, init = {}) => {
       const requestUrl = typeof input === 'string' ? input : input?.url || '';
       const method = String(init.method || (typeof input !== 'string' ? input?.method : 'GET') || 'GET').toUpperCase();
-      if (
-        document.getElementById('app') &&
-        (method === 'POST' || method === 'PUT') &&
-        requestUrl.includes('/api/notes')
-      ) {
+      const pathname = new URL(requestUrl, window.location.origin).pathname;
+      const isCreateOrUpdate = pathname === '/api/notes' || (/^\/api\/notes\/[^/]+$/.test(pathname) && method === 'PUT');
+
+      if (document.getElementById('app') && (method === 'POST' || method === 'PUT') && isCreateOrUpdate) {
         const card = getEditorCardForRequest(requestUrl, method);
         const control = card?.querySelector('.publicHideToggle');
         if (control && typeof init.body === 'string') {
@@ -93,11 +93,23 @@ export const uiPolishJs = `
           }
         }
       }
+
       const response = await originalFetch(input, init);
+
+      if (document.getElementById('app') && method === 'GET' && pathname === '/api/notes' && response.headers.get('content-type')?.includes('application/json')) {
+        try {
+          const data = await response.clone().json();
+          manageNotes.clear();
+          for (const note of Array.isArray(data?.notes) ? data.notes : []) manageNotes.set(String(note.id), note);
+        } catch {
+          // Leave the management cache unchanged.
+        }
+      }
+
       if (
         document.getElementById('notes') &&
         method === 'GET' &&
-        requestUrl.includes('/api/notes') &&
+        pathname === '/api/notes' &&
         response.headers.get('content-type')?.includes('application/json')
       ) {
         try {
@@ -112,6 +124,7 @@ export const uiPolishJs = `
           return response;
         }
       }
+
       return response;
     };
   }
