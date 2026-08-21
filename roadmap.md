@@ -39,6 +39,7 @@
 - [x] v2.5.0 selected offline HTML export with a dedicated card-selection modal and server-side filtering.
 - [x] v2.5.1 removed the unused Explain on hover editor option and restored collapsible note/ticket/important categories.
 - [x] v2.6.0 added persistent public visibility controls, migrated legacy `explain` fields out of stored notes, and kept hidden notes available in the authenticated editor while excluding them from public APIs and exports.
+- [x] v2.6.1 fixed manage-editor wiring for the persistent `Hide from public` control and removed the stale `Explain on hover` UI reliably.
 
 ## Next
 ### v3.0.0
