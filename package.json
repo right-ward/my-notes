@@ -6,5 +6,5 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev"
   },
-  "version": "2.6.1"
+  "version": "2.6.2"
 }
