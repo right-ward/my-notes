@@ -3,6 +3,7 @@ import { publicAppJs } from './public-app.js';
 import { manageAppJs } from './manage-app.js';
 import { manageExportAppJs } from './manage-export.js';
 import { uiPolishJs } from './ui-polish.js';
+import { managePatchJs } from './manage-patch.js';
 import { APP_VERSION } from './version.js';
 
 function escapeHtml(text) {
@@ -100,6 +101,7 @@ export function manageShell() {
   <script type="module">${manageAppJs}</script>
   <script type="module">${manageExportAppJs}</script>
   <script type="module">${uiPolishJs}</script>
+  <script type="module">${managePatchJs}</script>
 </body>
 </html>`;
 }
