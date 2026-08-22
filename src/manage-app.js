@@ -135,27 +135,14 @@ export const manageAppJs = `
   }
 
   const PLACEHOLDER_GROUPS = [
-    {
-      title: 'Generic',
-      tokens: ['reason', 'date', 'merchant', 'number'],
-    },
-    {
-      title: 'Email',
-      tokens: ['phone', 'nationalId', 'fullName', 'trackingId', 'ticketBody', 'operatorName'],
-    },
+    { title: 'Generic', tokens: ['reason', 'date', 'merchant', 'number'] },
+    { title: 'Email', tokens: ['phone', 'nationalId', 'fullName', 'trackingId', 'ticketBody', 'operatorName'] },
   ];
 
   const PLACEHOLDER_LABELS = {
-    reason: 'Reason',
-    date: 'Date',
-    merchant: 'Merchant name',
-    number: 'Number',
-    phone: 'Phone',
-    nationalId: 'National ID',
-    fullName: "User's full name",
-    trackingId: 'Ticket tracking ID',
-    ticketBody: 'Ticket body',
-    operatorName: "Operator's full name",
+    reason: 'Reason', date: 'Date', merchant: 'Merchant name', number: 'Number', phone: 'Phone',
+    nationalId: 'National ID', fullName: "User's full name", trackingId: 'Ticket tracking ID',
+    ticketBody: 'Ticket body', operatorName: "Operator's full name",
   };
 
   function insertAtCursor(textarea, value) {
@@ -168,6 +155,7 @@ export const manageAppJs = `
     textarea.focus();
     textarea.setSelectionRange(next, next);
   }
+
   function wrapSelection(textarea, prefix, suffix = prefix, placeholder = '') {
     const start = textarea.selectionStart ?? textarea.value.length;
     const end = textarea.selectionEnd ?? textarea.value.length;
@@ -198,12 +186,8 @@ export const manageAppJs = `
     if (!raw) return '';
     try {
       const parsed = new URL(raw, window.location.origin);
-      if (['http:', 'https:', 'mailto:'].includes(parsed.protocol)) {
-        return parsed.href;
-      }
-    } catch (error) {
-      return '';
-    }
+      if (['http:', 'https:', 'mailto:'].includes(parsed.protocol)) return parsed.href;
+    } catch {}
     return '';
   }
 
@@ -211,22 +195,15 @@ export const manageAppJs = `
     const source = String(text ?? '');
     let index = 0;
     let buffer = '';
-
-    const flush = () => {
-      if (!buffer) return;
-      parent.appendChild(document.createTextNode(buffer));
-      buffer = '';
-    };
+    const flush = () => { if (buffer) parent.appendChild(document.createTextNode(buffer)); buffer = ''; };
 
     while (index < source.length) {
       const rest = source.slice(index);
-
       if (rest[0] === '\\\\' && index + 1 < source.length) {
         buffer += source[index + 1];
         index += 2;
         continue;
       }
-
       const tokens = [
         { match: rest.match(/^\\[([^\\]]+)\\]\\(([^)\\s]+)\\)/), kind: 'link' },
         { match: rest.match(/^\`([^\`\\n]+)\`/), kind: 'code' },
@@ -237,7 +214,6 @@ export const manageAppJs = `
         { match: rest.match(/^_([^_\\n]+)_/), kind: 'em' },
       ];
       const token = tokens.find((entry) => entry.match);
-
       if (!token) {
         buffer += source[index];
         index += 1;
@@ -248,7 +224,6 @@ export const manageAppJs = `
       const full = token.match[0];
       const first = token.match[1];
       const second = token.match[2];
-
       if (token.kind === 'link') {
         const anchor = document.createElement('a');
         anchor.textContent = first;
@@ -257,31 +232,19 @@ export const manageAppJs = `
           anchor.href = href;
           anchor.rel = 'noreferrer noopener';
           anchor.target = '_blank';
-        } else {
-          anchor.removeAttribute('href');
         }
         parent.appendChild(anchor);
       } else if (token.kind === 'code') {
-        const code = document.createElement('code');
-        code.textContent = first;
-        parent.appendChild(code);
+        const code = document.createElement('code'); code.textContent = first; parent.appendChild(code);
       } else if (token.kind === 'strong') {
-        const strong = document.createElement('strong');
-        strong.textContent = first;
-        parent.appendChild(strong);
+        const strong = document.createElement('strong'); strong.textContent = first; parent.appendChild(strong);
       } else if (token.kind === 'strike') {
-        const strike = document.createElement('del');
-        strike.textContent = first;
-        parent.appendChild(strike);
+        const strike = document.createElement('del'); strike.textContent = first; parent.appendChild(strike);
       } else if (token.kind === 'em') {
-        const em = document.createElement('em');
-        em.textContent = first;
-        parent.appendChild(em);
+        const em = document.createElement('em'); em.textContent = first; parent.appendChild(em);
       }
-
       index += full.length;
     }
-
     flush();
   }
 
@@ -292,98 +255,53 @@ export const manageAppJs = `
     let list = null;
     let listType = '';
     let quote = null;
-
     const closeParagraph = () => { paragraph = null; };
     const closeList = () => { list = null; listType = ''; };
     const closeQuote = () => { quote = null; };
-
     const startParagraph = () => {
       if (!paragraph) {
-        paragraph = document.createElement('p');
-        paragraph.className = 'previewParagraph';
-        fragment.appendChild(paragraph);
+        paragraph = document.createElement('p'); paragraph.className = 'previewParagraph'; fragment.appendChild(paragraph);
       }
       return paragraph;
     };
-
     const startList = (nextType) => {
       if (!list || listType !== nextType) {
-        closeList();
-        list = document.createElement(nextType);
-        list.className = 'previewList';
-        fragment.appendChild(list);
-        listType = nextType;
+        closeList(); list = document.createElement(nextType); list.className = 'previewList'; fragment.appendChild(list); listType = nextType;
       }
       return list;
     };
-
     const startQuote = () => {
-      if (!quote) {
-        quote = document.createElement('blockquote');
-        quote.className = 'previewQuote';
-        fragment.appendChild(quote);
-      }
+      if (!quote) { quote = document.createElement('blockquote'); quote.className = 'previewQuote'; fragment.appendChild(quote); }
       return quote;
     };
 
     for (const rawLine of lines) {
       const line = String(rawLine ?? '');
       const trimmed = line.trim();
-
-      if (!trimmed) {
-        closeParagraph();
-        closeList();
-        closeQuote();
-        continue;
-      }
-
+      if (!trimmed) { closeParagraph(); closeList(); closeQuote(); continue; }
       const headingMatch = trimmed.match(/^(#{1,6})\\s+(.+)$/);
       if (headingMatch) {
-        closeParagraph();
-        closeList();
-        closeQuote();
+        closeParagraph(); closeList(); closeQuote();
         const heading = document.createElement('h' + headingMatch[1].length);
-        heading.className = 'previewHeading';
-        appendInlineMarkdown(heading, headingMatch[2]);
-        fragment.appendChild(heading);
-        continue;
+        heading.className = 'previewHeading'; appendInlineMarkdown(heading, headingMatch[2]); fragment.appendChild(heading); continue;
       }
-
       const quoteMatch = trimmed.match(/^>\\s?(.*)$/);
       if (quoteMatch) {
-        closeParagraph();
-        closeList();
-        const blockquote = startQuote();
-        const quoteLine = document.createElement('p');
-        quoteLine.className = 'previewQuoteLine';
-        appendInlineMarkdown(quoteLine, quoteMatch[1]);
-        blockquote.appendChild(quoteLine);
-        continue;
+        closeParagraph(); closeList(); const blockquote = startQuote();
+        const quoteLine = document.createElement('p'); quoteLine.className = 'previewQuoteLine';
+        appendInlineMarkdown(quoteLine, quoteMatch[1]); blockquote.appendChild(quoteLine); continue;
       }
-
       const listMatch = trimmed.match(/^(?:([-*+])|(\\d+)\\.)\\s+(.+)$/);
       if (listMatch) {
-        closeParagraph();
-        closeQuote();
-        const ordered = !!listMatch[2];
-        const currentList = startList(ordered ? 'ol' : 'ul');
-        const item = document.createElement('li');
-        item.className = 'previewListItem';
-        appendInlineMarkdown(item, listMatch[3]);
-        currentList.appendChild(item);
-        continue;
+        closeParagraph(); closeQuote(); const currentList = startList(listMatch[2] ? 'ol' : 'ul');
+        const item = document.createElement('li'); item.className = 'previewListItem'; appendInlineMarkdown(item, listMatch[3]); currentList.appendChild(item); continue;
       }
-
       const paragraphEl = startParagraph();
-      if (paragraphEl.childNodes.length) {
-        paragraphEl.appendChild(document.createElement('br'));
-      }
+      if (paragraphEl.childNodes.length) paragraphEl.appendChild(document.createElement('br'));
       appendInlineMarkdown(paragraphEl, line);
     }
-
     return fragment;
   }
-
 
   function normalizeUsageStats(stats) {
     return {
@@ -405,21 +323,12 @@ export const manageAppJs = `
 
   function blockRow(block = {}) {
     const wrap = el('div', { className: 'blockItem' });
-    const text = el('textarea', {
-      className: 'blockField',
-      rows: '4',
-      placeholder: 'Block text',
-      value: block.text || '',
-    });
-
+    const text = el('textarea', { className: 'blockField', rows: '4', placeholder: 'Block text', value: block.text || '' });
     const toolbar = el('div', { className: 'formatToolbar' });
     const makeButton = (label, title, action) => {
-      const button = el('button', { type: 'button', className: 'formatButton', title: title }, label);
-      button.addEventListener('click', action);
-      toolbar.appendChild(button);
-      return button;
+      const button = el('button', { type: 'button', className: 'formatButton', title }, label);
+      button.addEventListener('click', action); toolbar.appendChild(button); return button;
     };
-
     makeButton('Bold', 'Wrap selection with bold markdown', () => wrapSelection(text, '**', '**', 'bold text'));
     makeButton('Italic', 'Wrap selection with italic markdown', () => wrapSelection(text, '_', '_', 'italic text'));
     makeButton('Code', 'Wrap selection with inline code markdown', () => wrapSelection(text, '\`', '\`', 'code'));
@@ -433,68 +342,46 @@ export const manageAppJs = `
     const previewBody = el('div', { className: 'blockPreviewBody' });
 
     function refreshPreview() {
-      previewBody.innerHTML = '';
-      previewBody.appendChild(renderMarkdownPreview(text.value));
+      previewBody.innerHTML = ''; previewBody.appendChild(renderMarkdownPreview(text.value));
     }
-
     previewToggle.addEventListener('click', () => {
       const isHidden = previewWrap.hidden;
       previewWrap.hidden = !isHidden;
       previewToggle.textContent = isHidden ? 'Hide preview' : 'Show preview';
       if (isHidden) refreshPreview();
     });
-
-    text.addEventListener('input', () => {
-      if (!previewWrap.hidden) refreshPreview();
-    });
+    text.addEventListener('input', () => { if (!previewWrap.hidden) refreshPreview(); });
 
     const helper = el('details', { className: 'placeholderHelp' });
     const summary = el('summary', { textContent: 'Insert placeholders' });
     const helperGrid = el('div', { className: 'placeholderGrid' });
-
     for (const group of PLACEHOLDER_GROUPS) {
       const groupBox = el('div', { className: 'placeholderGroup' });
       groupBox.append(el('div', { className: 'placeholderGroupTitle', textContent: group.title }));
       const buttons = el('div', { className: 'placeholderButtons' });
       for (const token of group.tokens) {
-        const button = el('button', {
-          type: 'button',
-          className: 'placeholderChip',
-          title: PLACEHOLDER_LABELS[token] || token,
-        }, '{{' + token + '}}');
-        button.addEventListener('click', () => insertAtCursor(text, '{{' + token + '}}'));
-        buttons.appendChild(button);
+        const button = el('button', { type: 'button', className: 'placeholderChip', title: PLACEHOLDER_LABELS[token] || token }, '{{' + token + '}}');
+        button.addEventListener('click', () => insertAtCursor(text, '{{' + token + '}}')); buttons.appendChild(button);
       }
-      groupBox.append(buttons);
-      helperGrid.appendChild(groupBox);
+      groupBox.append(buttons); helperGrid.appendChild(groupBox);
     }
-
     helper.append(summary, helperGrid);
 
     const flags = el('div', { className: 'blockFlags' });
-
     const copyLabel = el('label');
     const copy = el('input', { type: 'checkbox', checked: !!block.copyable });
     copyLabel.append(copy, ' Copyable');
-
-    const explainLabel = el('label');
-    const explain = el('input', { type: 'checkbox', checked: !!block.explain });
-    explainLabel.append(explain, ' Explain on hover');
+    flags.append(copyLabel);
 
     const remove = el('button', { type: 'button' }, 'Remove block');
-
-    flags.append(copyLabel, explainLabel);
     previewHeader.append(previewTitle, previewToggle);
     previewWrap.append(previewHeader, previewBody);
     wrap.append(toolbar, text, previewWrap, helper, flags, remove);
-
     remove.addEventListener('click', () => wrap.remove());
-
     return wrap;
   }
 
   function historySection(note) {
-
     const history = Array.isArray(note.history) ? note.history : [];
     const details = el('details', { className: 'historySection' });
     const summary = el('summary', { textContent: 'Version history (' + history.length + ')' });
@@ -511,12 +398,8 @@ export const manageAppJs = `
       const clearAll = el('button', { type: 'button' }, 'Delete all snapshots');
       clearAll.addEventListener('click', async () => {
         if (!confirm('Delete all saved snapshots for this card?')) return;
-        await request('/api/notes/' + encodeURIComponent(note.id) + '/history', {
-          method: 'POST',
-          body: JSON.stringify({ all: true }),
-        });
-        showToast('Snapshots deleted');
-        await refresh();
+        await request('/api/notes/' + encodeURIComponent(note.id) + '/history', { method: 'POST', body: JSON.stringify({ all: true }) });
+        showToast('Snapshots deleted'); await refresh();
       });
       actionsBar.appendChild(clearAll);
     }
@@ -529,48 +412,26 @@ export const manageAppJs = `
         const meta = entry.meta || {};
         const item = el('div', { className: 'historyEntry' });
         const when = entry.at ? new Date(entry.at).toLocaleString() : 'Unknown time';
-
-        const topLine = el('div', { className: 'historyMeta', textContent: '#' + (history.length - index) + ' · ' + when + ' · ' + (meta.summary || (snap.kind || note.kind || 'note')) });
-        item.append(topLine);
-
-        if (meta.detail) {
-          item.append(el('div', { className: 'historyMeta', textContent: meta.detail }));
-        }
-
+        item.append(el('div', { className: 'historyMeta', textContent: '#' + (history.length - index) + ' · ' + when + ' · ' + (meta.summary || (snap.kind || note.kind || 'note')) }));
+        if (meta.detail) item.append(el('div', { className: 'historyMeta', textContent: meta.detail }));
         const diffDetails = el('details', { className: 'historyDiff' });
-        diffDetails.append(
-          el('summary', { textContent: 'Show diff' }),
-          el('pre', { className: 'historyDiffText', textContent: meta.diff || '(no diff metadata)' })
-        );
+        diffDetails.append(el('summary', { textContent: 'Show diff' }), el('pre', { className: 'historyDiffText', textContent: meta.diff || '(no diff metadata)' }));
         item.append(diffDetails);
 
         const actions = el('div', { className: 'historyActions' });
         const restore = el('button', { type: 'button' }, 'Restore version');
         const removeSnapshot = el('button', { type: 'button' }, 'Delete snapshot');
-
         restore.addEventListener('click', async () => {
           if (!confirm('Restore this version?')) return;
-          await request('/api/notes/restore', {
-            method: 'POST',
-            body: JSON.stringify({ note: snap }),
-          });
-          showToast('Version restored');
-          await refresh();
+          await request('/api/notes/restore', { method: 'POST', body: JSON.stringify({ note: snap }) });
+          showToast('Version restored'); await refresh();
         });
-
         removeSnapshot.addEventListener('click', async () => {
           if (!confirm('Delete this snapshot?')) return;
-          await request('/api/notes/' + encodeURIComponent(note.id) + '/history', {
-            method: 'POST',
-            body: JSON.stringify({ historyId: entry.id }),
-          });
-          showToast('Snapshot deleted');
-          await refresh();
+          await request('/api/notes/' + encodeURIComponent(note.id) + '/history', { method: 'POST', body: JSON.stringify({ historyId: entry.id }) });
+          showToast('Snapshot deleted'); await refresh();
         });
-
-        actions.append(restore, removeSnapshot);
-        item.append(actions);
-        list.appendChild(item);
+        actions.append(restore, removeSnapshot); item.append(actions); list.appendChild(item);
       });
     }
 
@@ -581,15 +442,7 @@ export const manageAppJs = `
   function noteCard(note = {}) {
     const original = clone(note);
     const card = el('section', { className: 'editorCard', dataset: { id: note.id || '' } });
-
-    const titleInput = el('input', {
-      className: 'editorField',
-      type: 'text',
-      value: note.title || '',
-      placeholder: 'Card title',
-      dir: 'auto',
-    });
-
+    const titleInput = el('input', { className: 'editorField', type: 'text', value: note.title || '', placeholder: 'Card title', dir: 'auto' });
     const kindSelect = el('select', { className: 'editorField' });
     for (const value of ['note', 'ticket', 'important']) {
       const option = el('option', { value, textContent: value === 'important' ? 'important' : value });
@@ -598,7 +451,7 @@ export const manageAppJs = `
     }
 
     const blocksWrap = el('div', { className: 'blockList' });
-    const blocks = Array.isArray(note.blocks) && note.blocks.length ? note.blocks : [{ text: '', copyable: false, explain: false }];
+    const blocks = Array.isArray(note.blocks) && note.blocks.length ? note.blocks : [{ text: '', copyable: false }];
     for (const block of blocks) blocksWrap.appendChild(blockRow(block));
 
     const addBlock = el('button', { type: 'button' }, 'Add block');
@@ -606,15 +459,8 @@ export const manageAppJs = `
     const duplicate = el('button', { type: 'button' }, 'Duplicate');
     const del = el('button', { type: 'button' }, 'Delete');
 
-    const titleRow = el('div', { className: 'editorRow' },
-      el('label', { textContent: 'Title' }),
-      titleInput
-    );
-
-    const kindRow = el('div', { className: 'editorRow' },
-      el('label', { textContent: 'Type' }),
-      kindSelect
-    );
+    const titleRow = el('div', { className: 'editorRow' }, el('label', { textContent: 'Title' }), titleInput);
+    const kindRow = el('div', { className: 'editorRow' }, el('label', { textContent: 'Type' }), kindSelect);
 
     const doneRow = el('div', { className: 'editorRow' });
     const doneLabel = el('label', { className: 'blockFlags' });
@@ -622,66 +468,49 @@ export const manageAppJs = `
     doneLabel.append(done, ' Done for now');
     doneRow.append(el('label', { textContent: 'State' }), doneLabel);
 
-    const usageRow = el('div', { className: 'editorRow' },
-      el('label', { textContent: 'Usage' }),
-      el('div', { className: 'historyMeta usageMeta', textContent: usageSummary(note) })
-    );
+    const visibilityRow = el('div', { className: 'editorRow' });
+    const visibilityLabel = el('label', { className: 'blockFlags' });
+    const hidden = el('input', { type: 'checkbox', checked: !!note.hidden, dir: 'ltr' });
+    visibilityLabel.append(hidden, ' Hide from public');
+    visibilityRow.append(el('label', { textContent: 'Visibility' }), visibilityLabel);
 
-    const blocksRow = el('div', { className: 'editorRow' },
-      el('label', { textContent: 'Blocks' }),
-      blocksWrap,
-      addBlock
-    );
-
+    const usageRow = el('div', { className: 'editorRow' }, el('label', { textContent: 'Usage' }), el('div', { className: 'historyMeta usageMeta', textContent: usageSummary(note) }));
+    const blocksRow = el('div', { className: 'editorRow' }, el('label', { textContent: 'Blocks' }), blocksWrap, addBlock);
     const footer = el('div', { className: 'noteActions' }, save, duplicate, del);
     const history = historySection(note);
 
     addBlock.addEventListener('click', () => blocksWrap.appendChild(blockRow()));
 
-    duplicate.addEventListener('click', async () => {
-      if (!card.dataset.id) {
-        showToast('Save this card first');
-        return;
-      }
+    function collectBlocks() {
+      const collected = [];
+      blocksWrap.querySelectorAll('.blockItem').forEach((item) => {
+        const text = item.querySelector('textarea').value;
+        const copy = item.querySelector('input[type="checkbox"]');
+        collected.push({ text, copyable: !!copy?.checked });
+      });
+      return collected;
+    }
 
+    duplicate.addEventListener('click', async () => {
+      if (!card.dataset.id) { showToast('Save this card first'); return; }
       const payload = {
         title: (String(titleInput.value || original.title || 'Untitled').trim() || 'Untitled') + ' (copy)',
         kind: kindSelect.value,
         done: done.checked,
-        blocks: [],
+        hidden: hidden.checked,
+        blocks: collectBlocks(),
       };
-      blocksWrap.querySelectorAll('.blockItem').forEach((item) => {
-        const text = item.querySelector('textarea').value;
-        const checks = item.querySelectorAll('input[type="checkbox"]');
-        payload.blocks.push({
-          text,
-          copyable: !!checks[0].checked,
-          explain: !!checks[1].checked,
-        });
-      });
-
-      await request('/api/notes', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      showToast('Duplicated');
-      await refresh();
+      await request('/api/notes', { method: 'POST', body: JSON.stringify(payload) });
+      showToast('Duplicated'); await refresh();
     });
 
     del.addEventListener('click', async () => {
       const id = card.dataset.id;
-      if (!id) {
-        card.remove();
-        return;
-      }
+      if (!id) { card.remove(); return; }
       if (!confirm('Delete this card?')) return;
-
       await request('/api/notes/' + encodeURIComponent(id), { method: 'DELETE' });
       showToast('Deleted', 'Undo', async () => {
-        await request('/api/notes/restore', {
-          method: 'POST',
-          body: JSON.stringify({ note: original }),
-        });
+        await request('/api/notes/restore', { method: 'POST', body: JSON.stringify({ note: original }) });
         await refresh();
       });
       await refresh();
@@ -690,54 +519,27 @@ export const manageAppJs = `
     save.addEventListener('click', async () => {
       const title = titleInput.value.trim();
       const kind = kindSelect.value;
-      const collected = [];
-      blocksWrap.querySelectorAll('.blockItem').forEach((item) => {
-        const text = item.querySelector('textarea').value;
-        const checks = item.querySelectorAll('input[type="checkbox"]');
-        collected.push({
-          text,
-          copyable: !!checks[0].checked,
-          explain: !!checks[1].checked,
-        });
-      });
+      const collected = collectBlocks();
+      if (!title) { showToast('Title is required'); return; }
+      if (!collected.length) { showToast('Add at least one block'); return; }
 
-      if (!title) {
-        showToast('Title is required');
-        return;
-      }
-      if (!collected.length) {
-        showToast('Add at least one block');
-        return;
-      }
-
-      const payload = { title, kind, done: done.checked, blocks: collected };
+      const payload = { title, kind, done: done.checked, hidden: hidden.checked, blocks: collected };
       const id = card.dataset.id;
-
       if (id) {
-        await request('/api/notes/' + encodeURIComponent(id), {
-          method: 'PUT',
-          body: JSON.stringify(payload),
-        });
+        await request('/api/notes/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(payload) });
         showToast('Updated', 'Undo', async () => {
-          await request('/api/notes/restore', {
-            method: 'POST',
-            body: JSON.stringify({ note: original }),
-          });
+          await request('/api/notes/restore', { method: 'POST', body: JSON.stringify({ note: original }) });
           await refresh();
         });
       } else {
-        const data = await request('/api/notes', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
+        const data = await request('/api/notes', { method: 'POST', body: JSON.stringify(payload) });
         card.dataset.id = data.note.id;
         showToast('Created');
       }
-
       await refresh();
     });
 
-    card.append(titleRow, kindRow, doneRow, usageRow, blocksRow, history, footer);
+    card.append(titleRow, kindRow, doneRow, visibilityRow, usageRow, blocksRow, history, footer);
     return card;
   }
 
@@ -757,30 +559,18 @@ export const manageAppJs = `
 
     const grid = el('div', { className: 'manageGrid' });
     data.notes.sort((a, b) => (a.index || 0) - (b.index || 0)).forEach((note) => grid.appendChild(noteCard(note)));
-
     app.append(top, grid);
 
     top.querySelector('#newCard').addEventListener('click', () => {
-      grid.prepend(noteCard({ kind: 'note', blocks: [{ text: '', copyable: false, explain: false }], history: [] }));
+      grid.prepend(noteCard({ kind: 'note', hidden: false, blocks: [{ text: '', copyable: false }], history: [] }));
       showToast('New card ready');
     });
 
     top.querySelector('#backupBtn').addEventListener('click', async () => {
-      try {
-        await exportJsonBackup();
-      } catch (error) {
-        console.error(error);
-        showToast(error.message || 'Export failed');
-      }
+      try { await exportJsonBackup(); } catch (error) { console.error(error); showToast(error.message || 'Export failed'); }
     });
-
     top.querySelector('#htmlBtn').addEventListener('click', async () => {
-      try {
-        await exportOfflineHtml();
-      } catch (error) {
-        console.error(error);
-        showToast(error.message || 'Export failed');
-      }
+      try { await exportOfflineHtml(); } catch (error) { console.error(error); showToast(error.message || 'Export failed'); }
     });
 
     const importBtn = top.querySelector('#importBtn');
@@ -791,13 +581,9 @@ export const manageAppJs = `
       if (!file) return;
       try {
         await importBackupFile(file);
-        showToast('Backup imported');
-        importFile.value = '';
-        await refresh();
+        showToast('Backup imported'); importFile.value = ''; await refresh();
       } catch (error) {
-        console.error(error);
-        showToast(error.message || 'Import failed');
-        importFile.value = '';
+        console.error(error); showToast(error.message || 'Import failed'); importFile.value = '';
       }
     });
 
