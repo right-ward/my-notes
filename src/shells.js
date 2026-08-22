@@ -2,8 +2,6 @@ import { style } from './style.js';
 import { publicAppJs } from './public-app.js';
 import { manageAppJs } from './manage-app.js';
 import { manageExportAppJs } from './manage-export.js';
-import { uiPolishJs } from './ui-polish.js';
-import { managePatchJs } from './manage-patch.js';
 import { APP_VERSION } from './version.js';
 
 function escapeHtml(text) {
@@ -47,7 +45,6 @@ export function publicShell(embedNotes = null) {
   </main>
   <div id="toast" style="visibility:hidden; opacity:0;"></div>${embedded}
   <script type="module">${publicAppJs}</script>
-  <script type="module">${uiPolishJs}</script>
 </body>
 </html>`;
 }
@@ -100,8 +97,6 @@ export function manageShell() {
   <div id="toast" style="visibility:hidden; opacity:0;"></div>
   <script type="module">${manageAppJs}</script>
   <script type="module">${manageExportAppJs}</script>
-  <script type="module">${uiPolishJs}</script>
-  <script type="module">${managePatchJs}</script>
 </body>
 </html>`;
 }
